@@ -22,6 +22,7 @@ export function DonutChart({ segments, size = 180, thickness = 24, caption, valu
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90" role="presentation">
+        {/* Background track */}
         <circle
           cx="50"
           cy="50"
@@ -31,8 +32,10 @@ export function DonutChart({ segments, size = 180, thickness = 24, caption, valu
           strokeWidth={thickness / 2}
         />
 
+        {/* Category segments */}
         {arcs.map((arc, index) => {
           const length = Math.max(arc.share * 100, 0)
+          const offset = -arc.start * 100
 
           return (
             <circle
@@ -45,9 +48,11 @@ export function DonutChart({ segments, size = 180, thickness = 24, caption, valu
               strokeWidth={thickness / 2}
               pathLength="100"
               strokeDasharray={`${length} ${100 - length}`}
-              strokeDashoffset={-arc.start * 100}
               className="animate-draw-ring"
-              style={{ animationDelay: `${index * 120}ms` }}
+              style={{
+                strokeDashoffset: `${offset}`,
+                animationDelay: `${index * 60}ms`,
+              }}
             />
           )
         })}
