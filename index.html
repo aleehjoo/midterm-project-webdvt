@@ -2,9 +2,46 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <title>Ledger — Personal Budget Tracker</title>
+    <meta
+      name="description"
+      content="Track income and expenses, categorize transactions, and see where your money goes."
+    />
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>midterms</title>
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/favicon.svg" color="#5856D6" />
+
+    <!-- Matches the translucent nav bar so the iOS status bar blends into the app chrome. -->
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Ledger" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+    <script>
+      // Applied before first paint so a dark-mode reload never flashes a white screen.
+      // Kept in sync with THEME_STORAGE_KEY in src/context/ThemeContext.js.
+      // The value is JSON, because useLocalStorage stringifies everything it writes.
+      ;(function () {
+        try {
+          var raw = localStorage.getItem('ledger.theme')
+          var stored = raw === null ? null : JSON.parse(raw)
+          var theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+          document.documentElement.classList.toggle('dark', theme === 'dark')
+          document.documentElement.style.colorScheme = theme
+        } catch (e) {
+          /* private mode / storage disabled — fall through to the light default */
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
