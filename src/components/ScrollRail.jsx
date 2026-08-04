@@ -4,17 +4,23 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  * A horizontal scroll rail that works on every input method:
  *
  * - **Touch** — native momentum scroll (the default).
- * - **Mouse drag** — click-and-drag scrolls the rail, with a grab cursor.
+ * - **Mouse drag** — click-and-drag scrolls the rail, with a grab cursor when dragging.
  * - **Wheel** — vertical wheel is translated into horizontal scroll.
  * - **Fade edges** — subtle gradient masks hint that more content exists on
  *   either side, disappearing when the rail reaches an edge.
  *
- * Drop this around any overflow-x container to make it usable on desktops that
- * have no touchpad gesture support.
+ * Designed so normal clicks on child elements (like category buttons) pass
+ * through cleanly without being intercepted by pointer capture.
  */
 export function ScrollRail({ children, className = '' }) {
   const railRef = useRef(null)
-  const dragState = useRef({ isDragging: false, startX: 0, scrollLeft: 0, hasMoved: false })
+  const dragState = useRef({
+    isMouseDown: false,
+    isDragging: false,
+    startX: 0,
+    scrollLeft: 0,
+    pointerId: undefined,
+  })
 
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
@@ -35,7 +41,6 @@ export function ScrollRail({ children, className = '' }) {
 
     updateEdges()
 
-    // ResizeObserver catches container resizes and content changes.
     const observer = new ResizeObserver(updateEdges)
     observer.observe(el)
 
@@ -49,54 +54,77 @@ export function ScrollRail({ children, className = '' }) {
 
   // ── Mouse-drag scrolling ────────────────────────────────────────────────
   function handlePointerDown(event) {
-    // Only the primary button; ignore touch (handled natively).
+    // Only primary button; ignore touch (handled natively).
     if (event.pointerType === 'touch' || event.button !== 0) return
 
     const el = railRef.current
     if (!el) return
 
     dragState.current = {
-      isDragging: true,
+      isMouseDown: true,
+      isDragging: false,
       startX: event.clientX,
       scrollLeft: el.scrollLeft,
-      hasMoved: false,
+      pointerId: event.pointerId,
     }
-
-    el.setPointerCapture(event.pointerId)
-    el.style.cursor = 'grabbing'
-    el.style.userSelect = 'none'
   }
 
   function handlePointerMove(event) {
-    if (!dragState.current.isDragging) return
+    const { isMouseDown, startX, scrollLeft, isDragging } = dragState.current
+    if (!isMouseDown) return
 
-    const dx = event.clientX - dragState.current.startX
-    if (Math.abs(dx) > 3) dragState.current.hasMoved = true
+    const dx = event.clientX - startX
 
-    const el = railRef.current
-    if (el) el.scrollLeft = dragState.current.scrollLeft - dx
+    // Only initiate drag mode if mouse moved more than 5px.
+    // This leaves simple clicks 100% untouched for child buttons.
+    if (!isDragging && Math.abs(dx) > 5) {
+      dragState.current.isDragging = true
+      const el = railRef.current
+      if (el) {
+        try {
+          el.setPointerCapture(event.pointerId)
+        } catch {
+          // Fallback if browser doesn't support capture
+        }
+        el.style.cursor = 'grabbing'
+        el.style.userSelect = 'none'
+      }
+    }
+
+    if (dragState.current.isDragging) {
+      const el = railRef.current
+      if (el) el.scrollLeft = scrollLeft - dx
+    }
   }
 
   function handlePointerUp(event) {
-    if (!dragState.current.isDragging) return
-    dragState.current.isDragging = false
+    const { isDragging, pointerId } = dragState.current
+    dragState.current.isMouseDown = false
 
     const el = railRef.current
     if (el) {
-      el.releasePointerCapture(event.pointerId)
       el.style.cursor = ''
       el.style.userSelect = ''
+      if (isDragging && pointerId !== undefined) {
+        try {
+          el.releasePointerCapture(pointerId)
+        } catch {
+          // Ignore release errors if pointer wasn't captured
+        }
+      }
     }
 
-    // If the pointer moved, swallow the subsequent click so the chip under
-    // the cursor is not accidentally selected at the end of a drag.
-    if (dragState.current.hasMoved) {
+    // If we were actually dragging, swallow the trailing click event
+    // so the button under the mouse isn't accidentally clicked on release.
+    if (isDragging) {
       const suppress = (e) => {
         e.preventDefault()
         e.stopPropagation()
       }
       el?.addEventListener('click', suppress, { capture: true, once: true })
     }
+
+    dragState.current.isDragging = false
   }
 
   // ── Wheel → horizontal scroll ──────────────────────────────────────────
@@ -104,15 +132,10 @@ export function ScrollRail({ children, className = '' }) {
     const el = railRef.current
     if (!el) return
 
-    // Only hijack when there is something to scroll and the shift key is
-    // not already held (which natively scrolls horizontally).
     if (el.scrollWidth <= el.clientWidth) return
     if (event.shiftKey) return
 
-    // Prefer deltaY (normal vertical wheel) but fall back to deltaX.
-    const delta = Math.abs(event.deltaY) > Math.abs(event.deltaX)
-      ? event.deltaY
-      : event.deltaX
+    const delta = Math.abs(event.deltaY) > Math.abs(event.deltaX) ? event.deltaY : event.deltaX
 
     if (delta === 0) return
 

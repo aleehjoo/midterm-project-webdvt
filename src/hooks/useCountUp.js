@@ -13,10 +13,7 @@ function easeOutExpo(t) {
  *
  * Returns the current interpolated value which updates every frame for the
  * duration of the animation. The animation replays from 0 every time the
- * component remounts (which happens on every navigation thanks to the
- * `key={pathname}` on `<main>` in Layout).
- *
- * If `prefers-reduced-motion` is active the hook returns `target` immediately.
+ * component remounts or when the target changes.
  *
  * @param {number} target    The value to animate towards.
  * @param {number} duration  Animation length in milliseconds (default 1400).
@@ -27,13 +24,8 @@ export function useCountUp(target, duration = 1400) {
   const frameRef = useRef(null)
 
   useEffect(() => {
-    // Respect prefers-reduced-motion.
-    const motionOk =
-      typeof window === 'undefined' ||
-      !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-    if (!motionOk || target === 0) {
-      setValue(target)
+    if (target === 0) {
+      setValue(0)
       return
     }
 
@@ -56,11 +48,11 @@ export function useCountUp(target, duration = 1400) {
       }
     }
 
-    // Small delay so the page entrance animation (slide-up) is visible first,
-    // then the numbers start rolling — just like the Apple Wallet app.
+    // Small delay so the page entrance animation is visible first,
+    // then the numbers start rolling.
     const timeout = setTimeout(() => {
       frameRef.current = requestAnimationFrame(tick)
-    }, 200)
+    }, 120)
 
     return () => {
       clearTimeout(timeout)

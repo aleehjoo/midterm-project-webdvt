@@ -269,12 +269,34 @@
   margin-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+@utility animate-fade-in {
+  animation: fade-in 0.25s ease-out both;
+}
+
+@utility animate-scale-in {
+  animation: scale-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@utility animate-sheet-in {
+  animation: sheet-in 0.42s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@utility animate-slide-up {
+  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@utility animate-draw-ring {
+  animation: draw-ring 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@utility animate-shimmer-glow {
+  animation: shimmer-glow 1.8s ease-out both;
+}
+
+@utility animate-row-in {
+  animation: row-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@utility animate-bar-grow {
+  animation: bar-grow 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }

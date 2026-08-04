@@ -16,7 +16,7 @@ function TransactionRowBase({ transaction, index = 0 }) {
         '--hairline-inset': '3.75rem',
         animationDelay: `${index * 40}ms`,
       }}
-      className="hairline flex items-center gap-3 bg-surface px-4 py-2.5 transition-[background-color,transform] duration-200 ease-ios press active:bg-fill hover:bg-fill/60 motion-safe:animate-row-in"
+      className="hairline flex items-center gap-3 bg-surface px-4 py-2.5 transition-[background-color,transform] duration-200 ease-ios press active:bg-fill hover:bg-fill/60 animate-row-in"
     >
       <CategoryIcon category={category} />
 

@@ -29,7 +29,7 @@ export function BalanceCard({ totals }) {
   const isNegative = totals.balance < 0
 
   return (
-    <section className="overflow-hidden rounded-group bg-surface motion-safe:animate-shimmer-glow">
+    <section className="overflow-hidden rounded-group bg-surface animate-shimmer-glow">
       <div className="px-5 pt-6 pb-5 text-center">
         <p className="text-[13px] tracking-[0.06em] text-label-2 uppercase">Current Balance</p>
         <p

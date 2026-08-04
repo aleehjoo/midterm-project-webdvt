@@ -27,7 +27,7 @@ export function Layout() {
           or the page would stay invisible. */}
       <main
         key={pathname}
-        className="mx-auto w-full max-w-2xl px-4 pb-28 motion-safe:animate-slide-up sm:px-6 sm:pb-16"
+        className="mx-auto w-full max-w-2xl px-4 pb-28 animate-slide-up sm:px-6 sm:pb-16"
       >
         <Outlet />
       </main>

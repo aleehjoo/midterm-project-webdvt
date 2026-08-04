@@ -95,7 +95,7 @@ export function Summary() {
 
       <div className="space-y-6">
         {spendingByCategory.length > 0 ? (
-          <section className="flex flex-col items-center rounded-group bg-surface px-5 py-7 motion-safe:animate-scale-in">
+          <section className="flex flex-col items-center rounded-group bg-surface px-5 py-7 animate-scale-in">
             <DonutChart
               segments={segments}
               caption="Total spent"
@@ -234,7 +234,7 @@ function CategoryRow({ entry, category, totalExpenses, index }) {
   return (
     <GroupRow
       inset="3.75rem"
-      className="py-3 motion-safe:animate-row-in"
+      className="py-3 animate-row-in"
       style={{ animationDelay: `${index * 80}ms` }}
     >
       <CategoryIcon category={category} />
@@ -250,7 +250,7 @@ function CategoryRow({ entry, category, totalExpenses, index }) {
         <div className="mt-1.5 flex items-center gap-2">
           <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-fill">
             <span
-              className="block h-full origin-left rounded-full motion-safe:animate-bar-grow"
+              className="block h-full origin-left rounded-full animate-bar-grow"
               style={{
                 width: `${Math.max(entry.share * 100, 2)}%`,
                 backgroundColor: category.color,

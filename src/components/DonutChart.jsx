@@ -46,7 +46,7 @@ export function DonutChart({ segments, size = 180, thickness = 24, caption, valu
               pathLength="100"
               strokeDasharray={`${length} ${100 - length}`}
               strokeDashoffset={-arc.start * 100}
-              className="motion-safe:animate-draw-ring"
+              className="animate-draw-ring"
               style={{ animationDelay: `${index * 120}ms` }}
             />
           )

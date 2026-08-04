@@ -33,10 +33,10 @@ export function ActionSheet({ open, onClose, title, message, actions = [], cance
         type="button"
         aria-label="Dismiss"
         onClick={onClose}
-        className="absolute inset-0 bg-black/40 motion-safe:animate-fade-in"
+        className="absolute inset-0 bg-black/40 animate-fade-in"
       />
 
-      <div className="absolute inset-x-0 bottom-0 mx-auto max-w-md p-2 pb-safe motion-safe:animate-sheet-in">
+      <div className="absolute inset-x-0 bottom-0 mx-auto max-w-md p-2 pb-safe animate-sheet-in">
         <div className="overflow-hidden rounded-[13px] bg-nav backdrop-blur-2xl">
           {title || message ? (
             <div className="hairline px-6 py-3.5 text-center" style={{ '--hairline-inset': '0px' }}>
