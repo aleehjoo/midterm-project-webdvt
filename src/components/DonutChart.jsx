@@ -6,10 +6,16 @@
  * group is rotated a quarter turn so the first segment starts at twelve
  * o'clock, the way Apple's own ring charts do.
  *
+ * Segments are separated by a clean gap (0.8 pathLength units) so each category
+ * boundary is crisp, distinct, and free of overlap artifacts or jagged cuts at
+ * twelve o'clock.
+ *
  * @param {{id: string, color: string, share: number}[]} segments  shares sum to 1
  */
 export function DonutChart({ segments, size = 180, thickness = 24, caption, value }) {
   const radius = 50 - thickness / 4
+  const hasMultiple = segments.length > 1
+  const gap = hasMultiple ? 0.8 : 0
 
   // Each arc needs to know where the previous ones ended, so the running total
   // is folded into the list up front rather than mutated while rendering.
@@ -32,14 +38,16 @@ export function DonutChart({ segments, size = 180, thickness = 24, caption, valu
           strokeWidth={thickness / 2}
         />
 
-        {/* Category segments */}
+        {/* Category segments with clean boundary gaps */}
         {arcs.map((arc, index) => {
-          const length = Math.max(arc.share * 100, 0)
-          const offset = -arc.start * 100
+          const rawLength = Math.max(arc.share * 100, 0)
+          const visibleLength = hasMultiple ? Math.max(rawLength - gap, 0.2) : rawLength
+          const offset = -(arc.start * 100 + (hasMultiple ? gap / 2 : 0))
+          const dashTarget = `${visibleLength} ${100 - visibleLength}`
 
           return (
             <circle
-              key={arc.id}
+              key={`${arc.id}-${segments.length}`}
               cx="50"
               cy="50"
               r={radius}
@@ -47,9 +55,10 @@ export function DonutChart({ segments, size = 180, thickness = 24, caption, valu
               stroke={arc.color}
               strokeWidth={thickness / 2}
               pathLength="100"
-              strokeDasharray={`${length} ${100 - length}`}
               className="animate-draw-ring"
               style={{
+                '--target-dash': dashTarget,
+                strokeDasharray: dashTarget,
                 strokeDashoffset: `${offset}`,
                 animationDelay: `${index * 60}ms`,
               }}
