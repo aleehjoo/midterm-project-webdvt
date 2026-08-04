@@ -19,6 +19,7 @@ import { CategoryIcon } from '../components/CategoryIcon'
 import { Switch } from '../components/Switch'
 import { useTheme } from '../context/ThemeContext'
 import { useTransactionStore } from '../context/TransactionsContext'
+import { useCountUp } from '../hooks/useCountUp'
 import { getCategory } from '../data/categories'
 import { formatCurrency, percentOf } from '../utils/format'
 
@@ -84,17 +85,21 @@ export function Summary() {
 
   const savedShare = totals.income > 0 ? percentOf(totals.balance, totals.income) : 0
 
+  // Count-up for the donut chart centre value and the saved-share percentage.
+  const animatedExpenses = useCountUp(totals.expenses, 1400)
+  const animatedSavedShare = useCountUp(savedShare, 1600)
+
   return (
     <>
       <PageHeader title="Summary" subtitle="Where your money goes" />
 
       <div className="space-y-6">
         {spendingByCategory.length > 0 ? (
-          <section className="flex flex-col items-center rounded-group bg-surface px-5 py-7">
+          <section className="flex flex-col items-center rounded-group bg-surface px-5 py-7 motion-safe:animate-scale-in">
             <DonutChart
               segments={segments}
               caption="Total spent"
-              value={formatCurrency(totals.expenses, { compact: true })}
+              value={formatCurrency(animatedExpenses, { compact: true })}
             />
             <p className="mt-5 text-center text-[15px] text-label-2">
               Across{' '}
@@ -106,7 +111,7 @@ export function Summary() {
                 <>
                   {' · '}
                   <span className={savedShare >= 0 ? 'text-income' : 'text-expense'}>
-                    {savedShare}% of income kept
+                    {Math.round(animatedSavedShare)}% of income kept
                   </span>
                 </>
               ) : null}
@@ -127,37 +132,17 @@ export function Summary() {
             header="By Category"
             footer="Percentages are of total spending, not of income."
           >
-            {spendingByCategory.map((entry) => {
+            {spendingByCategory.map((entry, index) => {
               const category = getCategory(entry.categoryId)
 
               return (
-                <GroupRow key={entry.categoryId} inset="3.75rem" className="py-3">
-                  <CategoryIcon category={category} />
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="truncate text-[17px]">{category.label}</span>
-                      <span className="tnum shrink-0 text-[17px] font-medium">
-                        {formatCurrency(entry.total)}
-                      </span>
-                    </div>
-
-                    <div className="mt-1.5 flex items-center gap-2">
-                      <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-fill">
-                        <span
-                          className="block h-full rounded-full transition-[width] duration-500 ease-ios"
-                          style={{
-                            width: `${Math.max(entry.share * 100, 2)}%`,
-                            backgroundColor: category.color,
-                          }}
-                        />
-                      </span>
-                      <span className="tnum w-10 shrink-0 text-right text-[13px] text-label-2">
-                        {percentOf(entry.total, totals.expenses)}%
-                      </span>
-                    </div>
-                  </div>
-                </GroupRow>
+                <CategoryRow
+                  key={entry.categoryId}
+                  entry={entry}
+                  category={category}
+                  totalExpenses={totals.expenses}
+                  index={index}
+                />
               )
             })}
           </InsetGroup>
@@ -235,5 +220,49 @@ export function Summary() {
         ]}
       />
     </>
+  )
+}
+
+/**
+ * One category row in the breakdown list. Extracted so each row can own its own
+ * count-up animation and staggered entrance independently.
+ */
+function CategoryRow({ entry, category, totalExpenses, index }) {
+  const animatedTotal = useCountUp(entry.total, 1200)
+  const animatedPercent = useCountUp(percentOf(entry.total, totalExpenses), 1400)
+
+  return (
+    <GroupRow
+      inset="3.75rem"
+      className="py-3 motion-safe:animate-row-in"
+      style={{ animationDelay: `${index * 80}ms` }}
+    >
+      <CategoryIcon category={category} />
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="truncate text-[17px]">{category.label}</span>
+          <span className="tnum shrink-0 text-[17px] font-medium">
+            {formatCurrency(animatedTotal)}
+          </span>
+        </div>
+
+        <div className="mt-1.5 flex items-center gap-2">
+          <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-fill">
+            <span
+              className="block h-full origin-left rounded-full motion-safe:animate-bar-grow"
+              style={{
+                width: `${Math.max(entry.share * 100, 2)}%`,
+                backgroundColor: category.color,
+                animationDelay: `${300 + index * 100}ms`,
+              }}
+            />
+          </span>
+          <span className="tnum w-10 shrink-0 text-right text-[13px] text-label-2">
+            {Math.round(animatedPercent)}%
+          </span>
+        </div>
+      </div>
+    </GroupRow>
   )
 }
