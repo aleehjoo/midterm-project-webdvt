@@ -5,6 +5,7 @@ import { BalanceCard } from '../components/BalanceCard'
 import { EmptyState } from '../components/EmptyState'
 import { InsetGroup } from '../components/InsetGroup'
 import { PageHeader } from '../components/PageHeader'
+import { ScrollRail } from '../components/ScrollRail'
 import { SegmentedControl } from '../components/SegmentedControl'
 import { TransactionRow } from '../components/TransactionRow'
 import { useTransactionStore } from '../context/TransactionsContext'
@@ -116,10 +117,9 @@ export function Dashboard() {
             />
 
             {availableCategories.length > 0 ? (
-              <div
-                role="radiogroup"
+              <ScrollRail
                 aria-label="Filter by category"
-                className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:-mx-6 sm:px-6"
+                className="-mx-4 px-4 sm:-mx-6 sm:px-6"
               >
                 <CategoryChip
                   label="All Categories"
@@ -135,7 +135,7 @@ export function Dashboard() {
                     onSelect={() => setCategoryId(category.id)}
                   />
                 ))}
-              </div>
+              </ScrollRail>
             ) : null}
           </div>
         ) : null}
@@ -144,8 +144,8 @@ export function Dashboard() {
           <InsetGroup
             header={isFiltered ? `${visibleTransactions.length} matching` : 'All transactions'}
           >
-            {visibleTransactions.map((transaction) => (
-              <TransactionRow key={transaction.id} transaction={transaction} />
+            {visibleTransactions.map((transaction, index) => (
+              <TransactionRow key={transaction.id} transaction={transaction} index={index} />
             ))}
           </InsetGroup>
         ) : (

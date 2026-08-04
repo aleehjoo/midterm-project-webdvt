@@ -31,7 +31,7 @@ export function DonutChart({ segments, size = 180, thickness = 24, caption, valu
           strokeWidth={thickness / 2}
         />
 
-        {arcs.map((arc) => {
+        {arcs.map((arc, index) => {
           const length = Math.max(arc.share * 100, 0)
 
           return (
@@ -46,7 +46,8 @@ export function DonutChart({ segments, size = 180, thickness = 24, caption, valu
               pathLength="100"
               strokeDasharray={`${length} ${100 - length}`}
               strokeDashoffset={-arc.start * 100}
-              className="motion-safe:animate-fade-in"
+              className="motion-safe:animate-draw-ring"
+              style={{ animationDelay: `${index * 120}ms` }}
             />
           )
         })}

@@ -5,15 +5,18 @@ import { CategoryIcon } from './CategoryIcon'
 import { getCategory } from '../data/categories'
 import { formatCurrency, formatRelativeDate, signedAmount } from '../utils/format'
 
-function TransactionRowBase({ transaction }) {
+function TransactionRowBase({ transaction, index = 0 }) {
   const category = getCategory(transaction.categoryId)
   const isIncome = transaction.type === 'income'
 
   return (
     <Link
       to={`/transaction/${transaction.id}`}
-      style={{ '--hairline-inset': '3.75rem' }}
-      className="hairline flex items-center gap-3 bg-surface px-4 py-2.5 press active:bg-fill"
+      style={{
+        '--hairline-inset': '3.75rem',
+        animationDelay: `${index * 40}ms`,
+      }}
+      className="hairline flex items-center gap-3 bg-surface px-4 py-2.5 transition-[background-color,transform] duration-200 ease-ios press active:bg-fill hover:bg-fill/60 motion-safe:animate-row-in"
     >
       <CategoryIcon category={category} />
 

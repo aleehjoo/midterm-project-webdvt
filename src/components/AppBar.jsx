@@ -66,10 +66,10 @@ export function AppBar() {
                   to={to}
                   end={to === '/'}
                   className={({ isActive }) =>
-                    `flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[15px] font-medium transition-colors duration-200 press-sm ${
+                    `flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[15px] font-medium transition-all duration-200 ease-ios press-sm ${
                       isActive
-                        ? 'bg-accent-soft text-accent'
-                        : 'text-label-2 hover:bg-fill hover:text-label'
+                        ? 'bg-accent-soft text-accent shadow-[0_0_12px_rgba(88,86,214,0.15)]'
+                        : 'text-label-2 hover:bg-fill hover:text-label hover:scale-105'
                     }`
                   }
                 >
